@@ -1,0 +1,28 @@
+{
+  "name": "@0mod/agentkit-provider",
+  "version": "1.0.0",
+  "description": "Coinbase AgentKit Action Provider for 0mod HTTP 402 API Gateway",
+  "main": "build/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "agentkit",
+    "coinbase",
+    "x402",
+    "http-402",
+    "0mod",
+    "ai-agents"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@coinbase/agentkit": "^0.1.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
