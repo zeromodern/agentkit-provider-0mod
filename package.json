@@ -1,9 +1,15 @@
 {
-  "name": "@0mod/agentkit-provider",
-  "version": "1.0.0",
-  "description": "Coinbase AgentKit Action Provider for 0mod HTTP 402 API Gateway",
+  "name": "@zeromodern/agentkit-provider-0mod",
+  "version": "1.1.0",
+  "description": "Coinbase AgentKit action provider for the 0mod API Gateway",
   "main": "build/index.js",
   "type": "module",
+  "files": [
+    "build"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "prepare": "npm run build"
@@ -16,7 +22,7 @@
     "0mod",
     "ai-agents"
   ],
-  "author": "",
+  "author": "0mod <https://api.0mod.com>",
   "license": "MIT",
   "dependencies": {
     "@coinbase/agentkit": "^0.1.0",
