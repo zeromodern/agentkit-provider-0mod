@@ -1,5 +1,31 @@
 import { ActionProvider, CreateAction, Network, WalletProvider } from "@coinbase/agentkit";
 import { z } from "zod";
+import { x402Client } from "@x402/core/client";
+import { registerExactEvmScheme } from "@x402/evm/exact/client";
+import { wrapFetchWithPayment } from "@x402/fetch";
+import { privateKeyToAccount } from "viem/accounts";
+
+let cachedFetchClient: typeof fetch | null = null;
+
+function getFetchClient(): typeof fetch {
+  if (cachedFetchClient) return cachedFetchClient;
+  const pkey = process.env.PAYER_PRIVATE_KEY || process.env.EVM_PRIVATE_KEY || process.env.X402_PRIVATE_KEY;
+  if (!pkey) {
+    cachedFetchClient = fetch;
+    return fetch;
+  }
+  try {
+    const client = new x402Client();
+    const formattedKey = (pkey.startsWith("0x") ? pkey : `0x${pkey}`) as `0x${string}`;
+    registerExactEvmScheme(client, { signer: privateKeyToAccount(formattedKey) });
+    cachedFetchClient = wrapFetchWithPayment(fetch, client);
+    return cachedFetchClient;
+  } catch (err) {
+    console.error("Failed to initialize x402 auto-payment client:", err);
+    cachedFetchClient = fetch;
+    return fetch;
+  }
+}
 
 const StealthDomSchema = z.object({
   url: z.string().url().describe("Target URL to fetch from edge"),
@@ -51,7 +77,8 @@ const SummarizeSchema = z.object({
 
 async function safeFetchGateway(endpoint: string, payload: Record<string, any>): Promise<string> {
   try {
-    const res = await fetch(`https://api.0mod.com/api/v1/${endpoint}`, {
+    const fetchFn = getFetchClient();
+    const res = await fetchFn(`https://api.0mod.com/api/v1/${endpoint}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
