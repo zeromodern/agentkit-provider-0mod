@@ -49,7 +49,7 @@ console.log("Domain Check Output:", JSON.parse(resultJson));
 
 Institutional crypto data feeds (Kaiko, Amberdata, CoinMetrics) charge **$1,000 to $3,000/month** recurring minimum commitments for cross-venue spread OHLC candles, market dislocations, and execution latency benchmarks.
 
-With `@zeromodern/agentkit-provider-0mod`, quants and autonomous AI agents pay strictly per telemetry slice via HTTP 402 micropayments on Base ($0.015 - $0.150 USDC). A complete 24-hour high-resolution strategy backtest across spread candles, dislocations, and venue latencies costs **~$1.50 instead of $1,000/month** (over 99.8% cost reduction).
+With `@zeromodern/agentkit-provider-0mod`, quants and autonomous AI agents pay strictly per telemetry slice via HTTP 402 micropayments on Base USDC. Pricing is dynamically negotiated per request via the gateway's HTTP 402 challenge header (view live rates at [api.0mod.com](https://api.0mod.com)), allowing a complete 24-hour high-resolution strategy backtest to execute for micropayments instead of an enterprise $1,000/month commitment.
 
 See [`examples/quant_backtest_sprint.ts`](./examples/quant_backtest_sprint.ts) for the full runnable script.
 
