@@ -8,8 +8,8 @@
  *
  * Solution:
  * Using Coinbase AgentKit and @zeromodern/agentkit-provider-0mod, quants and AI agents
- * pay strictly per telemetry slice via HTTP 402 micropayments on Base ($0.025 - $0.200 USDC).
- * A full 24-hour high-resolution strategy backtest costs ~$2.50 instead of $1,000.00/mo.
+ * pay strictly per telemetry slice via HTTP 402 micropayments on Base ($0.015 - $0.150 USDC).
+ * A full 24-hour high-resolution strategy backtest costs ~$1.50 instead of $1,000.00/mo.
  *
  * Prerequisites:
  *   npm install @coinbase/agentkit @zeromodern/agentkit-provider-0mod viem
@@ -47,7 +47,7 @@ async function runQuantBacktestSprint() {
   const targetDate = "2026-09-13";
   const targetTime = "1400"; // 14:00 UTC slice
 
-  // Step 2: Fetch 15-minute Spread Candle ($0.025 USDC)
+  // Step 2: Fetch 15-minute Spread Candle ($0.015 USDC)
   console.log(`Step 2: Fetching 15m spread candle for ${targetPair} at ${targetDate} ${targetTime} UTC...`);
   try {
     const candleRaw = await provider.cryptoSpreadCandles({} as any, {
@@ -57,17 +57,17 @@ async function runQuantBacktestSprint() {
       interval: "15m",
     });
     const candle = JSON.parse(candleRaw);
-    totalUsdcSpent += 0.025;
+    totalUsdcSpent += 0.015;
     console.log(`✓ Open Spread: ${candle.open_raw_spread_bps} bps | High: ${candle.high_raw_spread_bps} bps | Low: ${candle.low_raw_spread_bps} bps`);
     console.log(`✓ Avg Net Spread: ${candle.avg_net_spread_bps} bps (after venue fees & gas)`);
     console.log(`✓ Dislocation events in 15m window: ${candle.dislocation_count}`);
     console.log(`✓ Cumulative volume depth: $${candle.volume_depth_usd.toLocaleString()}`);
-    console.log(`✓ Cost: $0.025 USDC\n`);
+    console.log(`✓ Cost: $0.015 USDC\n`);
   } catch (err) {
     console.error("Failed to fetch spread candle:", err);
   }
 
-  // Step 3: Pull Granular Market Dislocations ($0.080 USDC)
+  // Step 3: Pull Granular Market Dislocations ($0.045 USDC)
   console.log(`Step 3: Drilling into granular dislocation ticks for ${targetPair}...`);
   try {
     const dislocRaw = await provider.cryptoDislocations({} as any, {
@@ -76,7 +76,7 @@ async function runQuantBacktestSprint() {
       time: targetTime,
     });
     const dislocSlice = JSON.parse(dislocRaw);
-    totalUsdcSpent += 0.080;
+    totalUsdcSpent += 0.045;
     console.log(`✓ Total granular dislocations: ${dislocSlice.count}`);
     if (dislocSlice.dislocations && dislocSlice.dislocations.length > 0) {
       const topTick = dislocSlice.dislocations[0];
@@ -86,12 +86,12 @@ async function runQuantBacktestSprint() {
       console.log(`    Raw Spread: ${topTick.raw_spread_bps} bps | Net Spread: ${topTick.net_spread_bps} bps`);
       console.log(`    Estimated Profit: $${topTick.est_profit_usd.toFixed(4)} | Depth: $${topTick.liquidity_depth_usd.toFixed(2)}`);
     }
-    console.log(`✓ Cost: $0.080 USDC\n`);
+    console.log(`✓ Cost: $0.045 USDC\n`);
   } catch (err) {
     console.error("Failed to fetch dislocations:", err);
   }
 
-  // Step 4: Benchmark Venue Execution Latency ($0.120 USDC)
+  // Step 4: Benchmark Venue Execution Latency ($0.075 USDC)
   console.log(`Step 4: Benchmarking venue execution latency and fill rates...`);
   try {
     const latencyRaw = await provider.cryptoExecutionLatency({} as any, {
@@ -99,11 +99,11 @@ async function runQuantBacktestSprint() {
       time: targetTime,
     });
     const latency = JSON.parse(latencyRaw);
-    totalUsdcSpent += 0.120;
+    totalUsdcSpent += 0.075;
     console.log(`✓ p50 Execution Latency: ${latency.p50_latency_ms}ms | p90: ${latency.p90_latency_ms}ms | p99: ${latency.p99_latency_ms}ms`);
     console.log(`✓ Fill Rate: ${latency.fill_rate_pct}% across ${latency.sample_count} live fills`);
     console.log(`✓ Venue Breakdown: Coinbase ~${latency.venues.coinbase || 0}ms | Aerodrome Base ~${latency.venues.aerodrome_base || 0}ms`);
-    console.log(`✓ Cost: $0.120 USDC\n`);
+    console.log(`✓ Cost: $0.075 USDC\n`);
   } catch (err) {
     console.error("Failed to fetch latency:", err);
   }
