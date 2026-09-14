@@ -75,6 +75,35 @@ const SummarizeSchema = z.object({
   maxLength: z.number().optional().describe("Target word count limit"),
 });
 
+const CryptoCoverageSchema = z.object({
+  pair: z.string().optional().describe("Optional token pair filter (e.g. AERO/USD)"),
+});
+
+const CryptoSpreadCandlesSchema = z.object({
+  pair: z.string().describe("Token pair (e.g. AERO/USD)"),
+  date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+  time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+  interval: z.string().optional().describe("Candle interval (default 15m)"),
+});
+
+const CryptoDislocationsSchema = z.object({
+  pair: z.string().describe("Token pair (e.g. AERO/USD)"),
+  date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+  time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+});
+
+const CryptoExecutionLatencySchema = z.object({
+  date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+  time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+  venue: z.string().optional().describe("Optional venue filter (coinbase | base_dex)"),
+});
+
+const CryptoShadowCapacitySchema = z.object({
+  date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+  time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+  pair: z.string().optional().describe("Optional token pair filter"),
+});
+
 async function safeFetchGateway(endpoint: string, payload: Record<string, any>): Promise<string> {
   try {
     const fetchFn = getFetchClient();
@@ -223,6 +252,51 @@ export class ZeroModActionProvider extends ActionProvider<WalletProvider> {
   })
   async summarize(_walletProvider: WalletProvider, args: z.infer<typeof SummarizeSchema>): Promise<string> {
     return safeFetchGateway("summarize", args);
+  }
+
+  @CreateAction({
+    name: "crypto_coverage",
+    description: "Check data coverage, supported pairs, and date boundaries for crypto telemetry",
+    schema: CryptoCoverageSchema,
+  })
+  async cryptoCoverage(_walletProvider: WalletProvider, args: z.infer<typeof CryptoCoverageSchema>): Promise<string> {
+    return safeFetchGateway("crypto/coverage", args);
+  }
+
+  @CreateAction({
+    name: "crypto_spread_candles",
+    description: "Fetch cross-venue CEX-DEX spread candles (OHLC) for a token pair",
+    schema: CryptoSpreadCandlesSchema,
+  })
+  async cryptoSpreadCandles(_walletProvider: WalletProvider, args: z.infer<typeof CryptoSpreadCandlesSchema>): Promise<string> {
+    return safeFetchGateway("crypto/spread-candles", args);
+  }
+
+  @CreateAction({
+    name: "crypto_dislocations",
+    description: "Fetch cross-venue market dislocation and spread arbitrage events for a token pair",
+    schema: CryptoDislocationsSchema,
+  })
+  async cryptoDislocations(_walletProvider: WalletProvider, args: z.infer<typeof CryptoDislocationsSchema>): Promise<string> {
+    return safeFetchGateway("crypto/dislocations", args);
+  }
+
+  @CreateAction({
+    name: "crypto_execution_latency",
+    description: "Benchmark cross-venue execution speed, venue latencies, and fill rates",
+    schema: CryptoExecutionLatencySchema,
+  })
+  async cryptoExecutionLatency(_walletProvider: WalletProvider, args: z.infer<typeof CryptoExecutionLatencySchema>): Promise<string> {
+    return safeFetchGateway("crypto/execution-latency", args);
+  }
+
+  @CreateAction({
+    name: "crypto_shadow_capacity",
+    description: "Measure uncaptured arbitrage volume capacity and capital constraint metrics",
+    schema: CryptoShadowCapacitySchema,
+  })
+  async cryptoShadowCapacity(_walletProvider: WalletProvider, args: z.infer<typeof CryptoShadowCapacitySchema>): Promise<string> {
+    return safeFetchGateway("crypto/shadow-capacity", args);
   }
 
   supportsNetwork = (network: Network) => network.protocolFamily === "evm";
