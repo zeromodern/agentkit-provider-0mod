@@ -72,6 +72,46 @@ const SummarizeSchema = z.object({
     format: z.enum(["bullets", "paragraph", "executive"]).optional().describe("Summary output style format"),
     maxLength: z.number().optional().describe("Target word count limit"),
 });
+const CryptoCoverageSchema = z.object({
+    pair: z.string().optional().describe("Optional token pair filter (e.g. AERO/USD)"),
+});
+const CryptoSpreadCandlesSchema = z.object({
+    pair: z.string().describe("Token pair (e.g. AERO/USD)"),
+    date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+    time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+    interval: z.string().optional().describe("Candle interval (default 15m)"),
+});
+const CryptoDislocationsSchema = z.object({
+    pair: z.string().describe("Token pair (e.g. AERO/USD)"),
+    date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+    time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+});
+const CryptoExecutionLatencySchema = z.object({
+    date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+    time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+    venue: z.string().optional().describe("Optional venue filter (coinbase | base_dex)"),
+});
+const CryptoShadowCapacitySchema = z.object({
+    date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+    time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+    pair: z.string().optional().describe("Optional token pair filter"),
+});
+const CryptoLabeledDislocationsSchema = z.object({
+    pair: z.string().describe("Token pair (e.g. AERO/USD)"),
+    date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+    time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+});
+const CryptoAttributedExecutionsSchema = z.object({
+    pair: z.string().describe("Token pair (e.g. AERO/USD)"),
+    date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+    time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+});
+const CryptoImpactSimulationSchema = z.object({
+    pair: z.string().describe("Token pair (e.g. AERO/USD)"),
+    side: z.enum(["buy", "sell"]).describe("Order side to simulate"),
+    size_usd: z.number().optional().describe("Order size denominated in USD (provide this or size_base)"),
+    size_base: z.number().optional().describe("Order size denominated in base token units (provide this or size_usd)"),
+});
 async function safeFetchGateway(endpoint, payload) {
     try {
         const fetchFn = getFetchClient();
@@ -152,6 +192,30 @@ export class ZeroModActionProvider extends ActionProvider {
     }
     async summarize(_walletProvider, args) {
         return safeFetchGateway("summarize", args);
+    }
+    async cryptoCoverage(_walletProvider, args) {
+        return safeFetchGateway("crypto/coverage", args);
+    }
+    async cryptoSpreadCandles(_walletProvider, args) {
+        return safeFetchGateway("crypto/spread-candles", args);
+    }
+    async cryptoDislocations(_walletProvider, args) {
+        return safeFetchGateway("crypto/dislocations", args);
+    }
+    async cryptoExecutionLatency(_walletProvider, args) {
+        return safeFetchGateway("crypto/execution-latency", args);
+    }
+    async cryptoShadowCapacity(_walletProvider, args) {
+        return safeFetchGateway("crypto/shadow-capacity", args);
+    }
+    async cryptoLabeledDislocations(_walletProvider, args) {
+        return safeFetchGateway("crypto/labeled-dislocations", args);
+    }
+    async cryptoAttributedExecutions(_walletProvider, args) {
+        return safeFetchGateway("crypto/attributed-executions", args);
+    }
+    async cryptoImpactSimulation(_walletProvider, args) {
+        return safeFetchGateway("crypto/impact-simulation", args);
     }
     supportsNetwork = (network) => network.protocolFamily === "evm";
 }
@@ -265,4 +329,84 @@ __decorate([
     __metadata("design:paramtypes", [WalletProvider, void 0]),
     __metadata("design:returntype", Promise)
 ], ZeroModActionProvider.prototype, "summarize", null);
+__decorate([
+    CreateAction({
+        name: "crypto_coverage",
+        description: "Check data coverage, supported pairs, and date boundaries for crypto telemetry",
+        schema: CryptoCoverageSchema,
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [WalletProvider, void 0]),
+    __metadata("design:returntype", Promise)
+], ZeroModActionProvider.prototype, "cryptoCoverage", null);
+__decorate([
+    CreateAction({
+        name: "crypto_spread_candles",
+        description: "Fetch cross-venue CEX-DEX spread candles (OHLC) for a token pair",
+        schema: CryptoSpreadCandlesSchema,
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [WalletProvider, void 0]),
+    __metadata("design:returntype", Promise)
+], ZeroModActionProvider.prototype, "cryptoSpreadCandles", null);
+__decorate([
+    CreateAction({
+        name: "crypto_dislocations",
+        description: "Fetch cross-venue market dislocation and spread arbitrage events for a token pair",
+        schema: CryptoDislocationsSchema,
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [WalletProvider, void 0]),
+    __metadata("design:returntype", Promise)
+], ZeroModActionProvider.prototype, "cryptoDislocations", null);
+__decorate([
+    CreateAction({
+        name: "crypto_execution_latency",
+        description: "Benchmark cross-venue execution speed, venue latencies, and fill rates",
+        schema: CryptoExecutionLatencySchema,
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [WalletProvider, void 0]),
+    __metadata("design:returntype", Promise)
+], ZeroModActionProvider.prototype, "cryptoExecutionLatency", null);
+__decorate([
+    CreateAction({
+        name: "crypto_shadow_capacity",
+        description: "Measure uncaptured arbitrage volume capacity and capital constraint metrics",
+        schema: CryptoShadowCapacitySchema,
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [WalletProvider, void 0]),
+    __metadata("design:returntype", Promise)
+], ZeroModActionProvider.prototype, "cryptoShadowCapacity", null);
+__decorate([
+    CreateAction({
+        name: "crypto_labeled_dislocations",
+        description: "Fetch ML-labeled CEX-DEX dislocation events with persistence, on-chain capture, slippage, and regime annotations",
+        schema: CryptoLabeledDislocationsSchema,
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [WalletProvider, void 0]),
+    __metadata("design:returntype", Promise)
+], ZeroModActionProvider.prototype, "cryptoLabeledDislocations", null);
+__decorate([
+    CreateAction({
+        name: "crypto_attributed_executions",
+        description: "Fetch strategy-attributed execution records with per-arm realized PnL, volume, fills, and belt cost",
+        schema: CryptoAttributedExecutionsSchema,
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [WalletProvider, void 0]),
+    __metadata("design:returntype", Promise)
+], ZeroModActionProvider.prototype, "cryptoAttributedExecutions", null);
+__decorate([
+    CreateAction({
+        name: "crypto_impact_simulation",
+        description: "Simulate order-book impact for a given order size: expected fill price, slippage, fill ratio, and executable levels consumed",
+        schema: CryptoImpactSimulationSchema,
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [WalletProvider, void 0]),
+    __metadata("design:returntype", Promise)
+], ZeroModActionProvider.prototype, "cryptoImpactSimulation", null);
 export const zeroModActionProvider = () => new ZeroModActionProvider();

@@ -75,6 +75,54 @@ const SummarizeSchema = z.object({
   maxLength: z.number().optional().describe("Target word count limit"),
 });
 
+const CryptoCoverageSchema = z.object({
+  pair: z.string().optional().describe("Optional token pair filter (e.g. AERO/USD)"),
+});
+
+const CryptoSpreadCandlesSchema = z.object({
+  pair: z.string().describe("Token pair (e.g. AERO/USD)"),
+  date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+  time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+  interval: z.string().optional().describe("Candle interval (default 15m)"),
+});
+
+const CryptoDislocationsSchema = z.object({
+  pair: z.string().describe("Token pair (e.g. AERO/USD)"),
+  date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+  time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+});
+
+const CryptoExecutionLatencySchema = z.object({
+  date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+  time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+  venue: z.string().optional().describe("Optional venue filter (coinbase | base_dex)"),
+});
+
+const CryptoShadowCapacitySchema = z.object({
+  date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+  time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+  pair: z.string().optional().describe("Optional token pair filter"),
+});
+
+const CryptoLabeledDislocationsSchema = z.object({
+  pair: z.string().describe("Token pair (e.g. AERO/USD)"),
+  date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+  time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+});
+
+const CryptoAttributedExecutionsSchema = z.object({
+  pair: z.string().describe("Token pair (e.g. AERO/USD)"),
+  date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+  time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+});
+
+const CryptoImpactSimulationSchema = z.object({
+  pair: z.string().describe("Token pair (e.g. AERO/USD)"),
+  side: z.enum(["buy", "sell"]).describe("Order side to simulate"),
+  size_usd: z.number().optional().describe("Order size denominated in USD (provide this or size_base)"),
+  size_base: z.number().optional().describe("Order size denominated in base token units (provide this or size_usd)"),
+});
+
 async function safeFetchGateway(endpoint: string, payload: Record<string, any>): Promise<string> {
   try {
     const fetchFn = getFetchClient();
@@ -223,6 +271,78 @@ export class ZeroModActionProvider extends ActionProvider<WalletProvider> {
   })
   async summarize(_walletProvider: WalletProvider, args: z.infer<typeof SummarizeSchema>): Promise<string> {
     return safeFetchGateway("summarize", args);
+  }
+
+  @CreateAction({
+    name: "crypto_coverage",
+    description: "Check data coverage, supported pairs, and date boundaries for crypto telemetry",
+    schema: CryptoCoverageSchema,
+  })
+  async cryptoCoverage(_walletProvider: WalletProvider, args: z.infer<typeof CryptoCoverageSchema>): Promise<string> {
+    return safeFetchGateway("crypto/coverage", args);
+  }
+
+  @CreateAction({
+    name: "crypto_spread_candles",
+    description: "Fetch cross-venue CEX-DEX spread candles (OHLC) for a token pair",
+    schema: CryptoSpreadCandlesSchema,
+  })
+  async cryptoSpreadCandles(_walletProvider: WalletProvider, args: z.infer<typeof CryptoSpreadCandlesSchema>): Promise<string> {
+    return safeFetchGateway("crypto/spread-candles", args);
+  }
+
+  @CreateAction({
+    name: "crypto_dislocations",
+    description: "Fetch cross-venue market dislocation and spread arbitrage events for a token pair",
+    schema: CryptoDislocationsSchema,
+  })
+  async cryptoDislocations(_walletProvider: WalletProvider, args: z.infer<typeof CryptoDislocationsSchema>): Promise<string> {
+    return safeFetchGateway("crypto/dislocations", args);
+  }
+
+  @CreateAction({
+    name: "crypto_execution_latency",
+    description: "Benchmark cross-venue execution speed, venue latencies, and fill rates",
+    schema: CryptoExecutionLatencySchema,
+  })
+  async cryptoExecutionLatency(_walletProvider: WalletProvider, args: z.infer<typeof CryptoExecutionLatencySchema>): Promise<string> {
+    return safeFetchGateway("crypto/execution-latency", args);
+  }
+
+  @CreateAction({
+    name: "crypto_shadow_capacity",
+    description: "Measure uncaptured arbitrage volume capacity and capital constraint metrics",
+    schema: CryptoShadowCapacitySchema,
+  })
+  async cryptoShadowCapacity(_walletProvider: WalletProvider, args: z.infer<typeof CryptoShadowCapacitySchema>): Promise<string> {
+    return safeFetchGateway("crypto/shadow-capacity", args);
+  }
+
+  @CreateAction({
+    name: "crypto_labeled_dislocations",
+    description: "Fetch ML-labeled CEX-DEX dislocation events with persistence, on-chain capture, slippage, and regime annotations",
+    schema: CryptoLabeledDislocationsSchema,
+  })
+  async cryptoLabeledDislocations(_walletProvider: WalletProvider, args: z.infer<typeof CryptoLabeledDislocationsSchema>): Promise<string> {
+    return safeFetchGateway("crypto/labeled-dislocations", args);
+  }
+
+  @CreateAction({
+    name: "crypto_attributed_executions",
+    description: "Fetch strategy-attributed execution records with per-arm realized PnL, volume, fills, and belt cost",
+    schema: CryptoAttributedExecutionsSchema,
+  })
+  async cryptoAttributedExecutions(_walletProvider: WalletProvider, args: z.infer<typeof CryptoAttributedExecutionsSchema>): Promise<string> {
+    return safeFetchGateway("crypto/attributed-executions", args);
+  }
+
+  @CreateAction({
+    name: "crypto_impact_simulation",
+    description: "Simulate order-book impact for a given order size: expected fill price, slippage, fill ratio, and executable levels consumed",
+    schema: CryptoImpactSimulationSchema,
+  })
+  async cryptoImpactSimulation(_walletProvider: WalletProvider, args: z.infer<typeof CryptoImpactSimulationSchema>): Promise<string> {
+    return safeFetchGateway("crypto/impact-simulation", args);
   }
 
   supportsNetwork = (network: Network) => network.protocolFamily === "evm";
