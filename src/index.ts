@@ -104,6 +104,25 @@ const CryptoShadowCapacitySchema = z.object({
   pair: z.string().optional().describe("Optional token pair filter"),
 });
 
+const CryptoLabeledDislocationsSchema = z.object({
+  pair: z.string().describe("Token pair (e.g. AERO/USD)"),
+  date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+  time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+});
+
+const CryptoAttributedExecutionsSchema = z.object({
+  pair: z.string().describe("Token pair (e.g. AERO/USD)"),
+  date: z.string().optional().describe("Date in YYYY-MM-DD format"),
+  time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
+});
+
+const CryptoImpactSimulationSchema = z.object({
+  pair: z.string().describe("Token pair (e.g. AERO/USD)"),
+  side: z.enum(["buy", "sell"]).describe("Order side to simulate"),
+  size_usd: z.number().optional().describe("Order size denominated in USD (provide this or size_base)"),
+  size_base: z.number().optional().describe("Order size denominated in base token units (provide this or size_usd)"),
+});
+
 async function safeFetchGateway(endpoint: string, payload: Record<string, any>): Promise<string> {
   try {
     const fetchFn = getFetchClient();
@@ -297,6 +316,33 @@ export class ZeroModActionProvider extends ActionProvider<WalletProvider> {
   })
   async cryptoShadowCapacity(_walletProvider: WalletProvider, args: z.infer<typeof CryptoShadowCapacitySchema>): Promise<string> {
     return safeFetchGateway("crypto/shadow-capacity", args);
+  }
+
+  @CreateAction({
+    name: "crypto_labeled_dislocations",
+    description: "Fetch ML-labeled CEX-DEX dislocation events with persistence, on-chain capture, slippage, and regime annotations",
+    schema: CryptoLabeledDislocationsSchema,
+  })
+  async cryptoLabeledDislocations(_walletProvider: WalletProvider, args: z.infer<typeof CryptoLabeledDislocationsSchema>): Promise<string> {
+    return safeFetchGateway("crypto/labeled-dislocations", args);
+  }
+
+  @CreateAction({
+    name: "crypto_attributed_executions",
+    description: "Fetch strategy-attributed execution records with per-arm realized PnL, volume, fills, and belt cost",
+    schema: CryptoAttributedExecutionsSchema,
+  })
+  async cryptoAttributedExecutions(_walletProvider: WalletProvider, args: z.infer<typeof CryptoAttributedExecutionsSchema>): Promise<string> {
+    return safeFetchGateway("crypto/attributed-executions", args);
+  }
+
+  @CreateAction({
+    name: "crypto_impact_simulation",
+    description: "Simulate order-book impact for a given order size: expected fill price, slippage, fill ratio, and executable levels consumed",
+    schema: CryptoImpactSimulationSchema,
+  })
+  async cryptoImpactSimulation(_walletProvider: WalletProvider, args: z.infer<typeof CryptoImpactSimulationSchema>): Promise<string> {
+    return safeFetchGateway("crypto/impact-simulation", args);
   }
 
   supportsNetwork = (network: Network) => network.protocolFamily === "evm";

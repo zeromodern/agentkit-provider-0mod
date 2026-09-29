@@ -1,6 +1,6 @@
 {
   "name": "@zeromodern/agentkit-provider-0mod",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Coinbase AgentKit action provider for the 0mod API Gateway",
   "main": "build/index.js",
   "type": "module",
