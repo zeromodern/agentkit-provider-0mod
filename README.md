@@ -24,6 +24,10 @@ When `PAYER_PRIVATE_KEY` is present in your bot's environment, actions transpare
 npm install @zeromodern/agentkit-provider-0mod
 ```
 
+### TypeScript
+
+The package ships its own type declarations (`build/index.d.ts`) via the `types` field and an `exports` map, so no `@types/*` shim is required — editors and `tsc` resolve types automatically.
+
 ## Setup & Code Example
 
 ```typescript
@@ -76,6 +80,23 @@ See [`examples/quant_backtest_sprint.ts`](./examples/quant_backtest_sprint.ts) f
 | `crypto_dislocations` | Fetch cross-venue market dislocation and spread arbitrage events | `{ "pair": "AERO/USD", "date": "2026-09-14" }` |
 | `crypto_execution_latency` | Benchmark cross-venue execution speed, venue latencies, and fill rates | `{ "date": "2026-09-14" }` |
 | `crypto_shadow_capacity` | Measure uncaptured arbitrage volume capacity and capital constraint metrics | `{ "date": "2026-09-14" }` |
+
+## Release Flow (Maintainers)
+
+Releases are fully automated with [semantic-release](https://semantic-release.gitbook.io/) from [Conventional Commits](https://www.conventionalcommits.org/) on the default branch (`master`).
+
+**To cut a release:** merge a PR into `master` whose commits use Conventional Commit prefixes (`feat:`, `fix:`, `perf:`, `refactor:`, `chore:`, …). The [`Release` workflow](.github/workflows/release.yml) then:
+
+1. Analyzes commits since the last `vX.Y.Z` tag to derive the next SemVer (`feat` → minor, `fix`/`perf`/`refactor` → patch, `BREAKING CHANGE:` → major).
+2. Updates `package.json` and generates `CHANGELOG.md`.
+3. Commits the bump, creates the `vX.Y.Z` git tag, and opens a GitHub Release.
+4. Publishes the package to npm with provenance.
+
+No manual `npm version`, `npm publish`, or tag pushing is required. `publish.yml` is a **recovery-only** path: manually pushing a `v*` tag (or running it via `workflow_dispatch`) publishes that version if — and only if — it is not already on the npm registry.
+
+**Required repository secrets:** `NPM_TOKEN` (npm automation token with publish rights) plus the built-in `GITHUB_TOKEN` (which must have write access to `master`). Tags created by semantic-release using `GITHUB_TOKEN` do not cascade into other workflows, which is precisely why `publish.yml` cannot double-publish.
+
+**Do not** hand-edit `version` in `package.json` or write `CHANGELOG.md` manually — both are owned by semantic-release.
 
 ## Ecosystem Packages
 

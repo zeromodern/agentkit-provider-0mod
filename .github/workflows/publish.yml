@@ -1,8 +1,19 @@
 name: Publish Package to NPM
 
+# Recovery / back-fill path only.
+#
+# The primary release automation lives in release.yml (semantic-release), which
+# versions, tags, and publishes the package. This workflow exists so a *manually*
+# pushed `vX.Y.Z` tag can (re)publish the package — e.g. if the automated release
+# run failed after tagging, or npm was temporarily unavailable.
+#
+# It is guarded against double-publishing: if the tag's version already exists on
+# the npm registry, the publish step is skipped.
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -24,10 +35,32 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build package
+      - name: Build package (emits JS + .d.ts)
         run: npm run build
 
+      - name: Resolve target version
+        id: version
+        run: |
+          if [[ "${GITHUB_REF_NAME}" == v* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="$(node -p "require('./package.json').version")"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: ${VERSION}"
+
+      - name: Check whether version is already published
+        id: check
+        run: |
+          if npm view "@zeromodern/agentkit-provider-0mod@${{ steps.version.outputs.version }}" version >/dev/null 2>&1; then
+            echo "already=true" >> "$GITHUB_OUTPUT"
+            echo "Version ${{ steps.version.outputs.version }} already exists on npm — skipping publish."
+          else
+            echo "already=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish to NPM
+        if: steps.check.outputs.already == 'false'
         run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

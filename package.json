@@ -3,6 +3,15 @@
   "version": "1.4.0",
   "description": "Coinbase AgentKit action provider for the 0mod API Gateway",
   "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "import": "./build/index.js",
+      "default": "./build/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "type": "module",
   "files": [
     "build"
@@ -12,7 +21,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "release": "semantic-release"
   },
   "keywords": [
     "agentkit",
@@ -33,7 +43,14 @@
     "zod": "^3.22.0"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.6",
+    "@semantic-release/npm": "^12.0.2",
+    "@semantic-release/release-notes-generator": "^14.1.1",
     "@types/node": "^20.19.43",
+    "semantic-release": "^24.2.9",
     "typescript": "^5.0.0"
   }
 }
