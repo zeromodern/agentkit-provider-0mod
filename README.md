@@ -45,6 +45,15 @@ const resultJson = await provider.domainCheck(null, { domain: "base.org" });
 console.log("Domain Check Output:", JSON.parse(resultJson));
 ```
 
+## Practical Real-World Example: Quant Backtest Sprint ($1k/mo Subscription Alternative)
+
+Institutional crypto data feeds (Kaiko, Amberdata, CoinMetrics) charge **$1,000 to $3,000/month** recurring minimum commitments for cross-venue spread OHLC candles, market dislocations, and execution latency benchmarks.
+
+With `@zeromodern/agentkit-provider-0mod`, quants and autonomous AI agents pay strictly per telemetry slice via HTTP 402 micropayments on Base USDC. Pricing is dynamically negotiated per request via the gateway's HTTP 402 challenge header (view live rates at [api.0mod.com](https://api.0mod.com)), allowing a complete 24-hour high-resolution strategy backtest to execute for micropayments instead of an enterprise $1,000/month commitment.
+
+See [`examples/quant_backtest_sprint.ts`](./examples/quant_backtest_sprint.ts) for the full runnable script.
+
+
 ## Available Actions
 
 > 💡 **Pricing**: For live per-call pricing and endpoint status across all actions, visit [api.0mod.com](https://api.0mod.com) or fetch `https://api.0mod.com/api/v1/discovery`.
@@ -62,6 +71,11 @@ console.log("Domain Check Output:", JSON.parse(resultJson));
 | `embed_text` | 768-dim text embedding generation | `{ "text": "sample text" }` |
 | `embed_multilingual` | 1024-dim multilingual text embedding generation | `{ "text": "sample text" }` |
 | `summarize_text` | Executive TL;DR document summarization | `{ "text": "long text string" }` |
+| `crypto_coverage` | Check data coverage, supported pairs, and date boundaries | `{ "pair": "AERO/USD" }` |
+| `crypto_spread_candles` | Fetch cross-venue CEX-DEX spread candles (OHLC) | `{ "pair": "AERO/USD", "date": "2026-09-14" }` |
+| `crypto_dislocations` | Fetch cross-venue market dislocation and spread arbitrage events | `{ "pair": "AERO/USD", "date": "2026-09-14" }` |
+| `crypto_execution_latency` | Benchmark cross-venue execution speed, venue latencies, and fill rates | `{ "date": "2026-09-14" }` |
+| `crypto_shadow_capacity` | Measure uncaptured arbitrage volume capacity and capital constraint metrics | `{ "date": "2026-09-14" }` |
 
 ## Ecosystem Packages
 
