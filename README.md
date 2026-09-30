@@ -152,6 +152,12 @@ console.log(
 - **Import error:** Make sure you're importing from `@zeromodern/agentkit-provider-0mod`.
 - **Payment / Auth errors:** Ensure `PAYER_PRIVATE_KEY` is set with a valid Base EVM private key holding a USDC balance for x402 micropayments.
 
+## Release Process
+
+Releases are cut manually by the owner via a **GitHub Release** — publishing to
+npm is triggered by creating the Release, and the owner chooses the
+major/minor/patch bump. See [RELEASING.md](./RELEASING.md) for the full steps.
+
 ## License
 
 MIT
