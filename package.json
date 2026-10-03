@@ -1,6 +1,6 @@
 {
   "name": "@zeromodern/agentkit-provider-0mod",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Coinbase AgentKit action provider for the 0mod API Gateway",
   "main": "build/index.js",
   "type": "module",
@@ -24,6 +24,14 @@
   ],
   "author": "0mod <https://api.0mod.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zeromodern/agentkit-provider-0mod.git"
+  },
+  "homepage": "https://github.com/zeromodern/agentkit-provider-0mod#readme",
+  "bugs": {
+    "url": "https://github.com/zeromodern/agentkit-provider-0mod/issues"
+  },
   "dependencies": {
     "@coinbase/agentkit": "^0.1.0",
     "@x402/core": "^2.21.0",
