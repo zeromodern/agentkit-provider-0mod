@@ -9,6 +9,20 @@ this file.
 - Published to npm from a GitHub Release; the release tag MUST equal
   `package.json` `version` (guarded in `.github/workflows/publish.yml`).
 
+## [2.0.1] - 2026-10-03
+
+### Fixed
+- Added the missing `repository` field (plus `homepage` and `bugs`) to
+  `package.json`. `npm publish --provenance` (see `.github/workflows/publish.yml`)
+  requires a valid `repository.url` to bind the SLSA provenance attestation to a
+  public source repo; without it npm rejects the publish with **E422**
+  ("must have a repository field"). This unblocks the v2.0.0 publish once the
+  `NPM_TOKEN` credential is rotated.
+
+### Version
+- **PATCH `2.0.0 → 2.0.1`** — package-metadata fix only; the published API
+  surface (frozen 10-SKU catalogue) is unchanged.
+
 ## [2.0.0] - 2026-09-29
 
 ### Removed (BREAKING)
@@ -45,4 +59,5 @@ this file.
 - Added `labeled-dislocations`, `attributed-executions`, `impact-simulation`
   actions. (Superseded by 2.0.0.)
 
+[2.0.1]: https://github.com/zeromodern/agentkit-provider-0mod/releases/tag/v2.0.1
 [2.0.0]: https://github.com/zeromodern/agentkit-provider-0mod/releases/tag/v2.0.0
