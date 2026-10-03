@@ -36,15 +36,6 @@ const AirgapScrubSchema = z.object({
   strictMode: z.boolean().optional().describe("Enable Llama 3.1 edge AI redaction"),
 });
 
-const RagShrinkSchema = z.object({
-  html: z.string().describe("Raw HTML string to shrink for RAG context"),
-});
-
-const CodeDenoiseSchema = z.object({
-  code: z.string().describe("Code content to strip comments and docstrings from"),
-  language: z.string().optional().describe("Programming language"),
-});
-
 const DomainCheckSchema = z.object({
   domain: z.string().describe("Domain name to check RDAP availability"),
 });
@@ -53,26 +44,8 @@ const DexPriceSchema = z.object({
   query: z.string().describe("Token symbol or contract address"),
 });
 
-const XSentimentSchema = z.object({
-  topic: z.string().describe("Topic, ticker, or text sample to analyze"),
-});
-
 const ImageOcrSchema = z.object({
   imageUrl: z.string().url().describe("Public image URL to extract text and tables from"),
-});
-
-const EmbedTextSchema = z.object({
-  text: z.union([z.string(), z.array(z.string())]).describe("Text string or array of strings to generate 768-dim BGE-Base embeddings for"),
-});
-
-const EmbedMultilingualSchema = z.object({
-  text: z.union([z.string(), z.array(z.string())]).describe("Text string or array of strings to generate 1024-dim BGE-Large embeddings for"),
-});
-
-const SummarizeSchema = z.object({
-  text: z.string().describe("Source text payload to summarize"),
-  format: z.enum(["bullets", "paragraph", "executive"]).optional().describe("Summary output style format"),
-  maxLength: z.number().optional().describe("Target word count limit"),
 });
 
 const CryptoCoverageSchema = z.object({
@@ -96,24 +69,6 @@ const CryptoExecutionLatencySchema = z.object({
   date: z.string().optional().describe("Date in YYYY-MM-DD format"),
   time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
   venue: z.string().optional().describe("Optional venue filter (coinbase | base_dex)"),
-});
-
-const CryptoShadowCapacitySchema = z.object({
-  date: z.string().optional().describe("Date in YYYY-MM-DD format"),
-  time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
-  pair: z.string().optional().describe("Optional token pair filter"),
-});
-
-const CryptoLabeledDislocationsSchema = z.object({
-  pair: z.string().describe("Token pair (e.g. AERO/USD)"),
-  date: z.string().optional().describe("Date in YYYY-MM-DD format"),
-  time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
-});
-
-const CryptoAttributedExecutionsSchema = z.object({
-  pair: z.string().describe("Token pair (e.g. AERO/USD)"),
-  date: z.string().optional().describe("Date in YYYY-MM-DD format"),
-  time: z.string().optional().describe("Time slice in HHMM format (default 0000)"),
 });
 
 const CryptoImpactSimulationSchema = z.object({
@@ -193,24 +148,6 @@ export class ZeroModActionProvider extends ActionProvider<WalletProvider> {
   }
 
   @CreateAction({
-    name: "rag_shrink_html",
-    description: "Compress raw HTML down to structured headings and markdown for RAG",
-    schema: RagShrinkSchema,
-  })
-  async ragShrink(_walletProvider: WalletProvider, args: z.infer<typeof RagShrinkSchema>): Promise<string> {
-    return safeFetchGateway("rag-shrink", args);
-  }
-
-  @CreateAction({
-    name: "code_denoise",
-    description: "Strip comments, docstrings, whitespace, and sourcemaps from code to compress LLM prompt window",
-    schema: CodeDenoiseSchema,
-  })
-  async codeDenoise(_walletProvider: WalletProvider, args: z.infer<typeof CodeDenoiseSchema>): Promise<string> {
-    return safeFetchGateway("code-denoise", args);
-  }
-
-  @CreateAction({
     name: "domain_check",
     description: "Query global RDAP registry from edge for domain availability and WHOIS status",
     schema: DomainCheckSchema,
@@ -229,48 +166,12 @@ export class ZeroModActionProvider extends ActionProvider<WalletProvider> {
   }
 
   @CreateAction({
-    name: "x_sentiment",
-    description: "Analyze market & social sentiment for topics/tokens using Workers AI Llama 3.1",
-    schema: XSentimentSchema,
-  })
-  async xSentiment(_walletProvider: WalletProvider, args: z.infer<typeof XSentimentSchema>): Promise<string> {
-    return safeFetchGateway("x-sentiment", args);
-  }
-
-  @CreateAction({
     name: "image_ocr_shrink",
     description: "Extract clean text and table markdown from images via Workers AI Vision Llama 3.2",
     schema: ImageOcrSchema,
   })
   async imageOcr(_walletProvider: WalletProvider, args: z.infer<typeof ImageOcrSchema>): Promise<string> {
     return safeFetchGateway("image-ocr-shrink", args);
-  }
-
-  @CreateAction({
-    name: "embed_text",
-    description: "Generates 768-dimensional dense vector embeddings for RAG & semantic search via BAAI BGE-Base",
-    schema: EmbedTextSchema,
-  })
-  async embedText(_walletProvider: WalletProvider, args: z.infer<typeof EmbedTextSchema>): Promise<string> {
-    return safeFetchGateway("embed-text", args);
-  }
-
-  @CreateAction({
-    name: "embed_multilingual",
-    description: "Generates 1024-dimensional dense vector embeddings for multilingual & long text via BAAI BGE-Large",
-    schema: EmbedMultilingualSchema,
-  })
-  async embedMultilingual(_walletProvider: WalletProvider, args: z.infer<typeof EmbedMultilingualSchema>): Promise<string> {
-    return safeFetchGateway("embed-multilingual", args);
-  }
-
-  @CreateAction({
-    name: "summarize_text",
-    description: "Executive TL;DR text summarizer producing structured bullet points via Workers AI Llama 3.1",
-    schema: SummarizeSchema,
-  })
-  async summarize(_walletProvider: WalletProvider, args: z.infer<typeof SummarizeSchema>): Promise<string> {
-    return safeFetchGateway("summarize", args);
   }
 
   @CreateAction({
@@ -307,33 +208,6 @@ export class ZeroModActionProvider extends ActionProvider<WalletProvider> {
   })
   async cryptoExecutionLatency(_walletProvider: WalletProvider, args: z.infer<typeof CryptoExecutionLatencySchema>): Promise<string> {
     return safeFetchGateway("crypto/execution-latency", args);
-  }
-
-  @CreateAction({
-    name: "crypto_shadow_capacity",
-    description: "Measure uncaptured arbitrage volume capacity and capital constraint metrics",
-    schema: CryptoShadowCapacitySchema,
-  })
-  async cryptoShadowCapacity(_walletProvider: WalletProvider, args: z.infer<typeof CryptoShadowCapacitySchema>): Promise<string> {
-    return safeFetchGateway("crypto/shadow-capacity", args);
-  }
-
-  @CreateAction({
-    name: "crypto_labeled_dislocations",
-    description: "Fetch ML-labeled CEX-DEX dislocation events with persistence, on-chain capture, slippage, and regime annotations",
-    schema: CryptoLabeledDislocationsSchema,
-  })
-  async cryptoLabeledDislocations(_walletProvider: WalletProvider, args: z.infer<typeof CryptoLabeledDislocationsSchema>): Promise<string> {
-    return safeFetchGateway("crypto/labeled-dislocations", args);
-  }
-
-  @CreateAction({
-    name: "crypto_attributed_executions",
-    description: "Fetch strategy-attributed execution records with per-arm realized PnL, volume, fills, and belt cost",
-    schema: CryptoAttributedExecutionsSchema,
-  })
-  async cryptoAttributedExecutions(_walletProvider: WalletProvider, args: z.infer<typeof CryptoAttributedExecutionsSchema>): Promise<string> {
-    return safeFetchGateway("crypto/attributed-executions", args);
   }
 
   @CreateAction({
