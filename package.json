@@ -3,7 +3,16 @@
   "version": "2.0.1",
   "description": "Coinbase AgentKit action provider for the 0mod API Gateway",
   "main": "build/index.js",
+  "types": "build/index.d.ts",
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "import": "./build/index.js",
+      "default": "./build/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "build"
   ],
@@ -12,7 +21,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test": "npm run build && node test/smoke.mjs"
   },
   "keywords": [
     "agentkit",
